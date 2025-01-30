@@ -8,7 +8,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include "../libft/libft.h"
-#include "../ft_printf/ft_printf.h"
+/* #include "../ft_printf/ft_printf.h" */
 
 
 #endif // PIPEX_H_

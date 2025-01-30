@@ -13,46 +13,22 @@
 #include <time.h>
 
 
-/* char *get_command(char *argv) */
-/* { */
-/*    char *command; */
-/*    int i; */
 
-/*    i = 0; */
-/*    while (argv[i] != ' ') */
-/*    { */
-/*        i++; */
-/*    } */
-/*    command = malloc(i + 1 * sizeof(char)); */
-/*    if (command == NULL) */
-/*        return NULL; */
-/*    i = 0; */
-/*    while (argv[i] != ' ') */
-/*    { */
-/*        command[i] = argv[i]; */
-/*        i++; */
-/*    } */
-/*    argv[i] = '\0'; */
-/*    return command; */
-/* } */
-
-
-
-
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **envp)
 {
     char **command1;
     char **command2;
 
-    command1 = ft_split(argv[1], ' ');
-    command2 = ft_split(argv[2], ' ');
+    if (argc < 5)
+    {
+        return 1;
+    }
+
+    command1 = ft_split(argv[2], ' ');
+    command2 = ft_split(argv[3], ' ');
 
     command1[0] = ft_strjoin("/usr/bin/", command1[0]);
     command2[0] = ft_strjoin("/usr/bin/", command2[0]);
-
-
-
-    char *envp[] = { "PATH=/bin:/usr/bin", NULL };
 
     int fd[2];
     if (pipe(fd) == -1)
@@ -63,6 +39,9 @@ int main(int argc, char **argv)
         return 2;
     if (id0 == 0)
     {
+        int infile_fd = open("infile", O_RDONLY);
+        dup2(infile_fd, STDIN_FILENO);
+        close(infile_fd);
         close(fd[0]);
         dup2(fd[1], STDOUT_FILENO);
         close(fd[1]);
@@ -73,6 +52,9 @@ int main(int argc, char **argv)
         return 3;
     if (id1 == 0)
     {
+        int outfile_fd = open("outfile", O_WRONLY | O_TRUNC);
+        dup2(outfile_fd, STDOUT_FILENO);
+        close(outfile_fd);
         close(fd[1]);
         dup2(fd[0], STDIN_FILENO);
         close(fd[0]);
@@ -82,5 +64,7 @@ int main(int argc, char **argv)
     close(fd[1]);
     waitpid(id0, NULL, 0);
     waitpid(id1, NULL, 0);
+    free(command1);
+    free(command2);
     return 0;
 }
