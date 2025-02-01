@@ -13,101 +13,84 @@
 #include <time.h>
 #include <stdbool.h>
 
-
-char *get_path(char **envp)
+int in_child_proc(int *fd, char *bin_file[2], char **command1, char **envp)
 {
-    int i = 0;
-    char *variable;
-    while (envp[i] != NULL)
-    {
-         variable = ft_substr(envp[i], 0, 5);
-         if (ft_strncmp("PATH=", variable, 5) == 0)
-             return &envp[i][5];
-         i++;
-    }
-    return NULL;
+    int in_file_fd;
+    in_file_fd = open("infile", O_RDONLY);
+    dup2(in_file_fd, STDIN_FILENO);
+    close(in_file_fd);
+    close(fd[0]);
+    dup2(fd[1], STDOUT_FILENO);
+    close(fd[1]);
+    execve(bin_file[0], command1, envp);
+    exit(1);
 }
 
-char *path_exists(char **path, char *program)
+int out_child_proc(int *fd, char *bin_file[2], char **command2, char **envp)
 {
-    int i;
-    i = 0;
-    char *program_path;
-
-    while (path[i] != NULL)
-    {
-        program_path = ft_strjoin(path[i], "/");
-        program_path = ft_strjoin(program_path, program);
-        if (!access(program_path, X_OK))
-            return program_path;
-        i++;
-    }
-    return NULL;
+    int out_file_fd;
+    out_file_fd = open("outfile", O_WRONLY | O_TRUNC);
+    dup2(out_file_fd, STDOUT_FILENO);
+    close(out_file_fd);
+    close(fd[1]);
+    dup2(fd[0], STDIN_FILENO);
+    close(fd[0]);
+    execve(bin_file[1], command2, envp);
+    exit(2);
 }
 
 
+int get_command(char **envp, char **binfile, char ***command, char *argv)
+{
+    char **path;
+    path = ft_split(get_path(envp), ':');
+    *command = ft_split(argv, ' ');
+    *binfile = path_exists(path, *command[0]);
+    free_double_ptr((void **)path);
+    if (binfile == NULL)
+    {
+        perror("Did not find the path to the first command\n");
+        exit(1);
+    }
+    return 0;
+}
+
+void cleanup( int *id, int *fd, char *bin_file[2], char **command1, char **command2)
+{
+    close(fd[0]);
+    close(fd[1]);
+    waitpid(id[0], NULL, 0);
+    waitpid(id[1], NULL, 0);
+    free(bin_file[0]);
+    free(bin_file[1]);
+    free_double_ptr((void **)command1);
+    free_double_ptr((void **)command2);
+}
 
 int main(int argc, char **argv, char **envp)
 {
     char **command1;
     char **command2;
-    char **path;
-    int i = 0;
-
-    path = ft_split(get_path(envp), ':');
-
-    if (argc < 5)
-    {
-        printf("wrong number of args\n");
-        return 1;
-    }
-
-    command1 = ft_split(argv[2], ' ');
-    command2 = ft_split(argv[3], ' ');
-
-    command1[0] = path_exists(path, command1[0]);
-    if (command1[0] == NULL)
-        return (perror("Did not find the path to the first command\n"), 0);
-    command2[0] = path_exists(path, command2[0]);
-    if (command2[0] == NULL)
-        return (perror("Did not find the path to the seccond command\n"), 0);
-
+    char *bin_file[2];
     int fd[2];
+    int id[2];
+
+    get_command(envp, &bin_file[0], &command1, argv[2]);
+    get_command(envp, &bin_file[1], &command2, argv[3]);
+    if (argc < 5)
+        return (perror("Wrong number of args"), 0);
     if (pipe(fd) == -1)
         return 1;
-
-    int id0 = fork();
-    if (id0 == -1)
+    id[0] = fork();
+    if (id[0] == -1)
         return 2;
-    if (id0 == 0)
-    {
-        int infile_fd = open("infile", O_RDONLY);
-        dup2(infile_fd, STDIN_FILENO);
-        close(infile_fd);
-        close(fd[0]);
-        dup2(fd[1], STDOUT_FILENO);
-        close(fd[1]);
-        execve(command1[0], command1, envp);
-    }
-    int id1 = fork();
-    if (id1 == -1)
+    if (id[0] == 0)
+        in_child_proc(fd, bin_file, command1, envp);
+    id[1] = fork();
+    if (id[1] == -1)
         return 3;
-    if (id1 == 0)
-    {
-        int outfile_fd = open("outfile", O_WRONLY | O_TRUNC);
-        dup2(outfile_fd, STDOUT_FILENO);
-        close(outfile_fd);
-        close(fd[1]);
-        dup2(fd[0], STDIN_FILENO);
-        close(fd[0]);
-        execve(command2[0], command2, envp);
-    }
-    close(fd[0]);
-    close(fd[1]);
-    waitpid(id0, NULL, 0);
-    waitpid(id1, NULL, 0);
-    free(command1);
-    /* free(command2); */
+    if (id[1] == 0)
+        out_child_proc(fd, bin_file, command2, envp);
+    cleanup(id, fd, bin_file, command1, command2);
     return 0;
 }
-
