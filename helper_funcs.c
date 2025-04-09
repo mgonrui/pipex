@@ -1,5 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   helper_funcs.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mariogo2 <mariogo2@student.42mala...>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/02 11:31:14 by mariogo2          #+#    #+#             */
+/*   Updated: 2025/02/02 14:40:23 by mariogo2         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 #include "pipex.h"
-
 
 char *get_path(char **envp)
 {
@@ -35,7 +45,6 @@ char *path_exists(char **path, char *program)
     }
     return NULL;
 }
-
 
 void free_double_ptr(void **ptr)
 {

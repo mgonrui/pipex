@@ -1,5 +1,5 @@
-CFILES = pipex.c 
-
+CFILES = 	pipex.c \
+			helper_funcs.c
 
 OFILES = $(CFILES:.c=.o)
 
