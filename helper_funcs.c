@@ -9,9 +9,44 @@
 /*   Updated: 2025/02/02 14:40:23 by mariogo2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 #include "pipex.h"
 
-char *get_path(char **envp)
+void free_double_ptr(void **ptr)
+{
+    int i = 0;
+    while (ptr[i] != NULL)
+    {
+        free(ptr[i]);
+        i++;
+    }
+    free(ptr);
+}
+
+void open_files_check(char **argv)
+{
+    int infile_fd;
+    int outfile_fd;
+    infile_fd = open(argv[1], O_RDONLY);
+    if (infile_fd == -1)
+    {
+        perror("open infile failed");
+        exit(EXIT_FAILURE);
+    }
+    outfile_fd = open(argv[4], O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
+
+    if (outfile_fd == -1)
+    {
+        close(infile_fd);
+        perror("open outfile failed");
+        exit(EXIT_FAILURE);
+    }
+    close(infile_fd);
+    close(outfile_fd);
+    return ;
+}
+
+char *get_path_variable(char **envp)
 {
     int i = 0;
     char *variable;
@@ -26,18 +61,18 @@ char *get_path(char **envp)
     return (free(variable), NULL);
 }
 
-char *path_exists(char **path, char *program)
+char *ret_path_if_exists(char **list_of_paths, char *program_name)
 {
     int i;
     char *program_path;
-    char *swap;
+    char *temp;
 
     i = 0;
-    while (path[i] != NULL)
+    while (list_of_paths[i] != NULL)
     {
-        swap = ft_strjoin(path[i], "/");
-        program_path = ft_strjoin(swap, program);
-        free(swap);
+        temp = ft_strjoin(list_of_paths[i], "/");
+        program_path = ft_strjoin(temp, program_name);
+        free(temp);
         if (!access(program_path, X_OK))
             return program_path;
         free(program_path);
@@ -46,13 +81,34 @@ char *path_exists(char **path, char *program)
     return NULL;
 }
 
-void free_double_ptr(void **ptr)
+void get_cmd_path(char **envp, char **binpath, char ***cmd, char *argv)
 {
-    int i = 0;
-    while (ptr[i] != NULL)
+    char **list_of_paths;
+    char *single_line_path;
+    single_line_path = get_path_variable(envp);
+    if (single_line_path == NULL)
     {
-        free(ptr[i]);
-        i++;
+        perror("Did not find any PATH");
+        exit(1);
     }
-    free(ptr);
+    list_of_paths = ft_split(single_line_path, ':');
+    if (list_of_paths == NULL)
+    {
+        perror("Memory allocation error");
+        exit(1);
+    }
+    *cmd = ft_split(argv, ' ');
+    if (*cmd == NULL)
+    {
+        perror("Memory allocation error");
+        exit(1);
+    }
+    *binpath = ret_path_if_exists(list_of_paths, *cmd[0]);
+    free_double_ptr((void **)list_of_paths);
+    if (*binpath == NULL)
+    {
+        perror("Did not find any cmd");
+        exit(0);
+    }
+    return ;
 }

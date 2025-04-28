@@ -22,7 +22,9 @@
 #include "../libft/libft.h"
 
 void free_double_ptr(void **ptr);
-char *path_exists(char **path, char *program);
-char *get_path(char **envp);
+char *ret_path_if_exists(char **path, char *program);
+char *get_path_variable(char **envp);
+void open_files_check(char **argv);
+void get_cmd_path(char **envp, char **binfile, char ***cmd, char *argv);
 
 #endif // PIPEX_H

@@ -3,14 +3,14 @@ CFILES = 	pipex.c \
 
 OFILES = $(CFILES:.c=.o)
 
-CC = clang
+CC = gcc 
 NAME = pipex
-CFLAGS = -Wall -Werror -Wextra
+CFLAGS = -Wall -Wextra
 
 %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-all: libft $(NAME)
+all: libft $(NAME) pipex.h
 $(NAME): $(OFILES)
 	@ $(CC) $(CFLAGS) $(OFILES) ../libft/libft.a -o $(NAME)
 
@@ -20,11 +20,11 @@ libft:
 
 clean:
 	@ rm -f $(OFILES)
-	@ make -C libft/ clean
+	@ make -C ../libft/ clean
 
 fclean: clean
 	@ rm -f $(NAME)
-	@ make -C libft/ fclean
+	@ make -C ../libft/ fclean
 
 re: fclean all
 
