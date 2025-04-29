@@ -19,13 +19,14 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <stdbool.h>
 #include "../libft/libft.h"
 
 void free_double_ptr(void **ptr);
 char *ret_path_if_exists(char **path, char *program);
 char *get_path_variable(char **envp);
 void open_files_check(char **argv);
-void get_cmd_path(char **envp, char **binfile, char ***cmd, char *argv);
-void ft_error_exit(char *str, int errorcode);
+int get_cmd_path(char **envp, char **binpath, char ***cmd, char *argv);
+void ft_error(char *str, bool exit_program);
 
 #endif // PIPEX_H

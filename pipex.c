@@ -15,9 +15,21 @@
 void check_fork_failure(int id)
 {
    if (id == -1)
-       ft_error_exit("Fork failure\n", 1);
+       ft_error("Fork failure\n", true);
    return ;
 }
+
+void free_all(char **binpaths, char **cmd1, char **cmd2, bool free_first_only)
+{
+    if (free_first_only == false)
+    {
+        free(binpaths[1]);
+        free_double_ptr((void **)cmd2);
+    }
+    free(binpaths[0]);
+    free_double_ptr((void **)cmd1);
+}
+
 
 void cleanup(int *id, int *fd, char **binpaths, char **cmd1, char **cmd2)
 {
@@ -25,12 +37,8 @@ void cleanup(int *id, int *fd, char **binpaths, char **cmd1, char **cmd2)
     close(fd[1]);
     waitpid(id[0], NULL, 0);
     waitpid(id[1], NULL, 0);
-    free(binpaths[0]);
-    free(binpaths[1]);
-    free_double_ptr((void **)cmd1);
-    free_double_ptr((void **)cmd2);
+    free_all(binpaths, cmd1, cmd2, false);
 }
-
 
 void in_child_proc(int *fd, char *binpath, char **cmd1, char **envp, char *fil)
 {
@@ -67,10 +75,12 @@ int main(int argc, char **argv, char **envp)
     int id[2];
 
     if (argc != 5)
-        ft_error_exit("Wrong number of args\n", 1);
+        ft_error("Wrong number of args\n", true);
     open_files_check(argv);
-    get_cmd_path(envp, &binpaths[0], &cmd1, argv[2]);
-    get_cmd_path(envp, &binpaths[1], &cmd2, argv[3]);
+    if (get_cmd_path(envp, &binpaths[0], &cmd1, argv[2]) != 0)
+        return free_all(binpaths, cmd1, cmd2, true), 0;
+    if(get_cmd_path(envp, &binpaths[1], &cmd2, argv[3]) != 0)
+        return free_all(binpaths, cmd1, cmd2, false), 0;
     if (pipe(fd) == -1)
         return 1;
     id[0] = fork();
@@ -81,6 +91,5 @@ int main(int argc, char **argv, char **envp)
     check_fork_failure(id[1]);
     if (id[1] == 0)
         out_child_proc(fd, binpaths[1], cmd2, envp, argv[4]);
-    cleanup(id, fd, binpaths, cmd1, cmd2);
-    return 0;
+    return cleanup(id, fd, binpaths, cmd1, cmd2), 0;
 }
