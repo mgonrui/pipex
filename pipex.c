@@ -15,27 +15,27 @@
 void in_child_proc(int *fd, char *binpath, char **cmd1, char **envp, char *fil)
 {
     int in_file_fd;
+
     in_file_fd = open(fil, O_RDONLY);
     dup2(in_file_fd, STDIN_FILENO);
-    close(in_file_fd);
-    close(fd[0]);
     dup2(fd[1], STDOUT_FILENO);
+    close(fd[0]);
     close(fd[1]);
+    close(in_file_fd);
     execve(binpath, cmd1, envp);
-    exit(EXIT_FAILURE);
 }
 
 void out_child_proc(int *fd, char *binpath, char **cmd2, char **envp, char *fil)
 {
     int out_file_fd;
+
     out_file_fd = open(fil, O_WRONLY | O_TRUNC);
     dup2(out_file_fd, STDOUT_FILENO);
-    close(out_file_fd);
-    close(fd[1]);
     dup2(fd[0], STDIN_FILENO);
+    close(fd[1]);
     close(fd[0]);
+    close(out_file_fd);
     execve(binpath, cmd2, envp);
-    exit(EXIT_FAILURE);
 }
 
 int main(int argc, char **argv, char **envp)

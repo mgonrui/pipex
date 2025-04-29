@@ -28,11 +28,11 @@ void open_files_check(char **argv)
 {
     int infile_fd;
     int outfile_fd;
+
     infile_fd = open(argv[1], O_RDONLY);
     if (infile_fd == -1)
         ft_error("open infile failed\n", true);
     outfile_fd = open(argv[4], O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
-
     if (outfile_fd == -1)
     {
         close(infile_fd);
