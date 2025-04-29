@@ -20,13 +20,16 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <stdbool.h>
-#include "../libft/libft.h"
+#include "libft/libft.h"
 
 void free_double_ptr(void **ptr);
 char *ret_path_if_exists(char **path, char *program);
 char *get_path_variable(char **envp);
 void open_files_check(char **argv);
 int get_cmd_path(char **envp, char **binpath, char ***cmd, char *argv);
+void check_fork_failure(int id);
+void free_all(char **binpaths, char **cmd1, char **cmd2, bool free_first_only);
+void cleanup(int *id, int *fd, char **binpaths, char **cmd1, char **cmd2);
 void ft_error(char *str, bool exit_program);
 
 #endif // PIPEX_H

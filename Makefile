@@ -13,19 +13,19 @@ CFLAGS = -Wall -Wextra
 
 all: libft $(NAME) pipex.h
 $(NAME): $(OFILES)
-	@ $(CC) $(CFLAGS) $(OFILES) ../libft/libft.a -o $(NAME)
+	@ $(CC) $(CFLAGS) $(OFILES) libft/libft.a -o $(NAME)
 
 
 libft:
-	@ make -C ../libft/
+	@ make -C libft/
 
 clean:
 	@ rm -f $(OFILES)
-	@ make -C ../libft/ clean
+	@ make -C libft/ clean
 
 fclean: clean
 	@ rm -f $(NAME)
-	@ make -C ../libft/ fclean
+	@ make -C libft/ fclean
 
 re: fclean all
 
