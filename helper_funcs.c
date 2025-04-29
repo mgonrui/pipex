@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include <stdlib.h>
 
 void free_double_ptr(void **ptr)
 {
@@ -29,17 +30,13 @@ void open_files_check(char **argv)
     int outfile_fd;
     infile_fd = open(argv[1], O_RDONLY);
     if (infile_fd == -1)
-    {
-        ft_error_exit("open infile failed\n", 1);
-        exit(EXIT_FAILURE);
-    }
+        ft_error_exit("open infile failed\n", EXIT_FAILURE);
     outfile_fd = open(argv[4], O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
 
     if (outfile_fd == -1)
     {
         close(infile_fd);
-        ft_error_exit("open outfile failed\n", 1);
-        exit(EXIT_FAILURE);
+        ft_error_exit("open outfile failed\n", EXIT_FAILURE);
     }
     close(infile_fd);
     close(outfile_fd);

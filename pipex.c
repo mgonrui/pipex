@@ -15,10 +15,7 @@
 void check_fork_failure(int id)
 {
    if (id == -1)
-   {
        ft_error_exit("Fork failure\n", 1);
-       exit (1);
-   }
    return ;
 }
 
