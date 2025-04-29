@@ -16,7 +16,7 @@ void check_fork_failure(int id)
 {
    if (id == -1)
    {
-       perror("Fork failure");
+       ft_error_exit("Fork failure\n", 1);
        exit (1);
    }
    return ;
@@ -70,7 +70,7 @@ int main(int argc, char **argv, char **envp)
     int id[2];
 
     if (argc != 5)
-        return (perror("Wrong number of args"), 1);
+        ft_error_exit("Wrong number of args\n", 1);
     open_files_check(argv);
     get_cmd_path(envp, &binpaths[0], &cmd1, argv[2]);
     get_cmd_path(envp, &binpaths[1], &cmd2, argv[3]);

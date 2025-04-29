@@ -30,7 +30,7 @@ void open_files_check(char **argv)
     infile_fd = open(argv[1], O_RDONLY);
     if (infile_fd == -1)
     {
-        perror("open infile failed");
+        ft_error_exit("open infile failed\n", 1);
         exit(EXIT_FAILURE);
     }
     outfile_fd = open(argv[4], O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
@@ -38,7 +38,7 @@ void open_files_check(char **argv)
     if (outfile_fd == -1)
     {
         close(infile_fd);
-        perror("open outfile failed");
+        ft_error_exit("open outfile failed\n", 1);
         exit(EXIT_FAILURE);
     }
     close(infile_fd);
@@ -87,28 +87,16 @@ void get_cmd_path(char **envp, char **binpath, char ***cmd, char *argv)
     char *single_line_path;
     single_line_path = get_path_variable(envp);
     if (single_line_path == NULL)
-    {
-        perror("Did not find any PATH");
-        exit(1);
-    }
+        ft_error_exit("Did not find any PATH\n", 1);
     list_of_paths = ft_split(single_line_path, ':');
     if (list_of_paths == NULL)
-    {
-        perror("Memory allocation error");
-        exit(1);
-    }
+        ft_error_exit("Memory allocation failure\n", 1);
     *cmd = ft_split(argv, ' ');
     if (*cmd == NULL)
-    {
-        perror("Memory allocation error");
-        exit(1);
-    }
+        ft_error_exit("Memory allocation failure\n", 1);
     *binpath = ret_path_if_exists(list_of_paths, *cmd[0]);
     free_double_ptr((void **)list_of_paths);
     if (*binpath == NULL)
-    {
-        perror("Did not find any cmd");
-        exit(0);
-    }
+        ft_error_exit("Did not find any executable with that name\n", 1);
     return ;
 }
