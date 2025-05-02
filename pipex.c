@@ -75,5 +75,5 @@ int	main(int argc, char **argv, char **envp)
 		out_child_proc(fd, argv[4]);
 		execve(binpaths[1], cmds[1], envp);
 	}
-	return (cleanup(id, fd, binpaths, cmds[0], cmds[1]), 0);
+	return (cleanup(id, fd, binpaths, cmds), 0);
 }
