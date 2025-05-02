@@ -1,1 +1,0 @@
-("Makefile" "a" "a.out" "b" "helper_funcs.c" "infile" "outfile" "pipex" "pipex.c" "pipex.h")
